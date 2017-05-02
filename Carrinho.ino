@@ -1,12 +1,12 @@
-#define MOTOR_LA 1
-#define MOTOR_LB 2
-#define MOTOR_RA 3
-#define MOTOR_RB 4
-#define SERVO 5
-#define IR_L 6
-#define IR_R 7
-#define US_A 8
-#define US_B 9
+#define MOTOR_L A0
+#define MOTOR_L_DIR 1
+#define MOTOR_R A1
+#define MOTOR_R_DIR 2
+#define SERVO A2
+#define IR_L A3
+#define IR_R A4
+#define US_A 3
+#define US_B 4
 
 #define UP 0
 #define RIGHT 1
@@ -30,25 +30,27 @@ int leitura = 0;
 
 void setMotors(int motor_left, int motor_right){
     if (motor_left < 0) {
-        analogWrite(MOTOR_LA, 0);
-        analogWrite(MOTOR_LB, -motor_left);
+        analogWrite(MOTOR_L, -motor_left);
+        analogWrite(MOTOR_L_DIR, LOW);
     } else {
-        analogWrite(MOTOR_LA, motor_left);
-        analogWrite(MOTOR_LB, 0);
+        analogWrite(MOTOR_L, motor_left);
+        analogWrite(MOTOR_L_DIR, HIGH);
     }
 
     if (motor_right < 0) {
-        analogWrite(MOTOR_RA, 0);
-        analogWrite(MOTOR_RB, -motor_right);
+        analogWrite(MOTOR_R, -motor_right);
+        analogWrite(MOTOR_R_DIR, LOW);
     } else {
-        analogWrite(MOTOR_RA, motor_right);
-        analogWrite(MOTOR_RB, 0);
+        analogWrite(MOTOR_R, motor_right);
+        analogWrite(MOTOR_R_DIR, HIGH);
     }
 }
 
 void setup() {
     pinMode(MOTOR_L, OUTPUT);
+    pinMode(MOTOR_L_DIR, OUTPUT);
     pinMode(MOTOR_R, OUTPUT);
+    pinMode(MOTOR_R_DIR, OUTPUT);
     pinMode(SERVO, OUTPUT);
     pinMode(IR_L, INPUT);
     pinMode(IR_R, INPUT);
@@ -69,7 +71,7 @@ void loop() {
         } else {
             setMotors(STD_SPD, STD_SPD);
         }
-        if ((Serial.available()) && (Serial.read() == BREAK) {
+        if ((Serial.available()) && (Serial.read() == BREAK)) {
             autonomo = 0;
         }
     }
@@ -77,7 +79,7 @@ void loop() {
     delay(1000);
 
     while (controlado == 1){
-        if Serial.available(){
+        if (Serial.available()){
             leitura = Serial.read();
         } else {
             leitura = NONE;
@@ -85,19 +87,19 @@ void loop() {
         switch (leitura){
             case UP:
                 setMotors(STD_SPD, STD_SPD);
-                break
+                break;
             case RIGHT:
                 setMotors(STD_SPD, -STD_SPD);
-                break
+                break;
             case DOWN:
                 setMotors(-STD_SPD, -STD_SPD);
-                break
+                break;
             case LEFT:
                 setMotors(-STD_SPD, STD_SPD);
-                break
+                break;
             case BREAK:
                 controlado = 0;
-                break
+                break;
             default:
                 setMotors(0, 0);
         }
