@@ -1,12 +1,16 @@
-#define MOTOR_L A0
-#define MOTOR_L_DIR 1
-#define MOTOR_R A1
-#define MOTOR_R_DIR 2
-#define SERVO A2
-#define IR_L A3
-#define IR_R A4
-#define US_A 3
-#define US_B 4
+//todo: bluetooth comunication
+//      servo control
+//      fix pin definitions
+
+#define MOTOR_L D9
+#define MOTOR_L_DIR D10
+#define MOTOR_R D7
+#define MOTOR_R_DIR D8
+#define SERVO D2
+#define IR_L D3
+#define IR_R D4
+#define US_A D5
+#define US_B D6
 
 #define UP 0
 #define RIGHT 1
