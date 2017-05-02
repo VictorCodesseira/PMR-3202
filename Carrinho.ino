@@ -13,6 +13,7 @@
 #define DOWN 2
 #define LEFT 3
 #define BREAK 4
+#define NONE 5
 
 #define MOTOR_L 0
 #define MOTOR_R 1
@@ -68,7 +69,7 @@ void loop() {
         } else {
             setMotors(STD_SPD, STD_SPD);
         }
-        if (Serial.read() == BREAK) {
+        if ((Serial.available()) && (Serial.read() == BREAK) {
             autonomo = 0;
         }
     }
@@ -76,18 +77,29 @@ void loop() {
     delay(1000);
 
     while (controlado == 1){
-        leitura = Serial.read();
+        if Serial.available(){
+            leitura = Serial.read();
+        } else {
+            leitura = NONE;
+        }
         switch (leitura){
             case UP:
                 setMotors(STD_SPD, STD_SPD);
+                break
             case RIGHT:
                 setMotors(STD_SPD, -STD_SPD);
+                break
             case DOWN:
                 setMotors(-STD_SPD, -STD_SPD);
+                break
             case LEFT:
                 setMotors(-STD_SPD, STD_SPD);
+                break
             case BREAK:
                 controlado = 0;
+                break
+            default:
+                setMotors(0, 0);
         }
     }
 }
