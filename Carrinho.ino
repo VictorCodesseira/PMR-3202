@@ -1,6 +1,7 @@
-//todo: bluetooth comunication
-//      servo control
-//      fix pin definitions
+//todo: fix pin definitions
+#include <Servo.h>
+#include <SoftwareSerial.h>
+
 
 #define MOTOR_L D9
 #define MOTOR_L_DIR D10
@@ -11,13 +12,17 @@
 #define IR_R D4
 #define US_A D5
 #define US_B D6
+#define RX A0
+#define TX A1
 
 #define UP 0
 #define RIGHT 1
 #define DOWN 2
 #define LEFT 3
-#define BREAK 4
-#define NONE 5
+#define OPEN 4
+#define CLOSE 5
+#define BREAK 6
+#define NONE 10
 
 #define MOTOR_L 0
 #define MOTOR_R 1
@@ -27,6 +32,10 @@
 #define THRESHOLD 500
 
 void setMotors(int motor_left, int motor_right);
+
+Servo myservo;
+SoftwareSerial bluetooth(11, 12);
+
 int autonomo = 1, controlado = 1;
 int sens_esq = 0;
 int sens_dir = 0;
@@ -55,12 +64,14 @@ void setup() {
     pinMode(MOTOR_L_DIR, OUTPUT);
     pinMode(MOTOR_R, OUTPUT);
     pinMode(MOTOR_R_DIR, OUTPUT);
-    pinMode(SERVO, OUTPUT);
     pinMode(IR_L, INPUT);
     pinMode(IR_R, INPUT);
     pinMode(US_A, OUTPUT);
     pinMode(US_B, INPUT);
-    Serial.begin(9600);
+
+    myservo.attach(SERVO);
+
+    bluetooth.begin(115200);
 }
 
 // the loop function runs over and over again forever
@@ -75,7 +86,7 @@ void loop() {
         } else {
             setMotors(STD_SPD, STD_SPD);
         }
-        if ((Serial.available()) && (Serial.read() == BREAK)) {
+        if ((bluetooth.available()) && (bluetooth.read() == BREAK)) {
             autonomo = 0;
         }
     }
@@ -83,8 +94,8 @@ void loop() {
     delay(1000);
 
     while (controlado == 1){
-        if (Serial.available()){
-            leitura = Serial.read();
+        if (bluetooth.available()){
+            leitura = bluetooth.read();
         } else {
             leitura = NONE;
         }
@@ -101,6 +112,11 @@ void loop() {
             case LEFT:
                 setMotors(-STD_SPD, STD_SPD);
                 break;
+            case OPEN:
+                myservo.write(180);
+                break;
+            case CLOSE:
+                myservo.write(0);
             case BREAK:
                 controlado = 0;
                 break;
