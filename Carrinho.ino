@@ -51,7 +51,7 @@ void setup() {
     pinMode(SERVO, OUTPUT);
     pinMode(IR_L, INPUT);
     pinMode(IR_R, INPUT);
-    pinMode(US_A, INPUT);
+    pinMode(US_A, OUTPUT);
     pinMode(US_B, INPUT);
     Serial.begin(9600);
 }
