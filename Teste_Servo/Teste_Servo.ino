@@ -22,5 +22,7 @@ void loop() {
             angulo -= 5;
         }
     }
+    angulo = constrain(angulo, 0, 180);
     myservo.write(angulo);
+    Serial.println(angulo);
 }
