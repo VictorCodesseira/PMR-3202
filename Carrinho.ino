@@ -1,5 +1,5 @@
-#include "Carrinho.h"
 #include "Auxiliar.h"
+#include "Carrinho.h"
 #include <Servo.h>
 #include <SoftPWM.h>
 #include <SoftwareSerial.h>
@@ -9,9 +9,11 @@
 #define THRESHOLD 500
 
 Servo myservo;
-SoftwareSerial bluetooth(RX, TX);
-int sens_esq = 0, sens_dir = 0, dist = 0, leitura = 0;
+
+int sens_esq = 0, sens_dir = 0, dist = 0;
+int x, y, z, luz, buzina;
 int autonomo = 1, controlado = 1;
+int pack[9] = {255, 9, 127, 127, 0, 0, 0, 254, 254};
 
 void setup() {
     pinMode(MOTOR_L, OUTPUT);
@@ -22,13 +24,13 @@ void setup() {
     pinMode(IR_R, INPUT);
     pinMode(TRIG, OUTPUT);
     pinMode(ECHO, INPUT);
-    
+
     SoftPWMBegin();
     SoftPWMSet(MOTOR_R, 0);
 
     myservo.attach(SERVO);
 
-    bluetooth.begin(115200);
+    initBT();
 }
 
 // the loop function runs over and over again forever
@@ -44,41 +46,21 @@ void loop() {
         } else {
             setMotors(STD_SPD, STD_SPD);
         }
-        if ((bluetooth.available()) && (bluetooth.read() == BREAK)) {
-            autonomo = 0;
-        }
+        if (readBT() == BREAK) autonomo = 0;
     }
 
     setMotors(0,0);
     delay(1000);
 
     while (controlado == 1){
-        if (bluetooth.available()){
-            leitura = bluetooth.read();
-        }
-        switch (leitura){
-            case UP:
-                setMotors(STD_SPD, STD_SPD);
-                break;
-            case RIGHT:
-                setMotors(STD_SPD, -STD_SPD);
-                break;
-            case DOWN:
-                setMotors(-STD_SPD, -STD_SPD);
-                break;
-            case LEFT:
-                setMotors(-STD_SPD, STD_SPD);
-                break;
-            case OPEN:
-                myservo.write(180);
-                break;
-            case CLOSE:
-                myservo.write(0);
-            case BREAK:
-                controlado = 0;
-                break;
-            default:
-                setMotors(0, 0);
+        if (readBT_pack(pack)!=0){
+            x = 2*(pack[2]-127);
+            y = 2*(pack[3]-127);
+            z = pack[4];
+            luz = pack[5];
+            buzina = pack[6];
+            setMotors(constrain(y+x, -255, 255), constrain(y-x, -255, 255));
+            myservo.write(map(z, 0, 255, 0, 180));
         }
     }
 }
