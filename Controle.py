@@ -77,7 +77,7 @@ def play():
 
         z = ((z*50)/255)+60
         z = int(z)
-        pack = [255, x, y, z, 254]
+        pack = [255, x, y, z, luz, 254]
         if pack != last_pack:
             print(pack)
             send(pack)
