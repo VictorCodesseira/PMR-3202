@@ -72,7 +72,7 @@ void setup() {
 // the loop function runs over and over again forever
 int leitura[6] = {255, 0, 0, 84, 0, 254} , motor_l, motor_r, angulo = 90;
 void loop() {
-    while (1){
+    while (1 == 0){
         sens_esq = analogRead(IR_L);
         sens_dir = analogRead(IR_R);
         if ((sens_esq > THRESHOLD) && (sens_dir < THRESHOLD)){//Linha na esquerda
