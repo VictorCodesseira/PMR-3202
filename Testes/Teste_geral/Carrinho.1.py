@@ -3,7 +3,7 @@
 #include <SoftwareSerial.h>
 
 void setMotors(int motor_left, int motor_right);
-int readBT_pack(int leitura[7]);
+int readBT_pack(int leitura[6]);
 
 #define MOTOR_L 9
 #define MOTOR_L_DIR 10
@@ -22,7 +22,7 @@ int THRESHOLD_L = 500; ////////////////////////////////////
 int THRESHOLD_R = 200;
 int THRESHOLD_L2 = 500; ////////////////////////////////////
 int THRESHOLD_R2 = 200;
-int rosa = 0, azul = 0;
+
 Servo myservo;
 SoftwareSerial bluetooth(RX, TX);
 
@@ -44,7 +44,7 @@ void setMotors(int motor_left, int motor_right){
     }
 }
 
-int readBT_pack(int leitura[7]){
+int readBT_pack(int leitura[6]){
     if (!(bluetooth.available())) return 0;
     int c = bluetooth.read();
     if (c != 255) return 0;
@@ -52,7 +52,7 @@ int readBT_pack(int leitura[7]){
         while(!(bluetooth.available()));
         leitura[i] = bluetooth.read();
     }
-    if (leitura[6] != 254) return 0;
+    if (leitura[5] != 254) return 0;
     return 1;
 }
 
@@ -90,7 +90,7 @@ void calibragem(){
     int maxL = 0;
     int maxR = 0;
     unsigned long t1 = millis();
-    while (millis() < t1+5000){
+    while (millis() < t1+10000){
         sens_esq = analogRead(IR_L);
         sens_dir = analogRead(IR_R);
         minL = min(sens_esq, minL);
@@ -120,7 +120,7 @@ void calibragem2(){
     int maxL = 0;
     int maxR = 0;
     unsigned long t1 = millis();
-    while (millis() < t1+5000){
+    while (millis() < t1+10000){
         sens_esq = analogRead(IR_L);
         sens_dir = analogRead(IR_R);
         minL = min(sens_esq, minL);
@@ -132,8 +132,7 @@ void calibragem2(){
     
     THRESHOLD_L2 = (5*minL+maxL)/6;
     THRESHOLD_L2 = THRESHOLD_L2 - 100;
-    THRESHOLD_R2 = (5*minR+maxR)/2;
-    THRESHOLD_R2 = THRESHOLD_R2 - 100;
+    THRESHOLD_R2 = (minR+maxR)/2;
     Serial.print(THRESHOLD_L2);
     Serial.print('\t');
     Serial.print(THRESHOLD_R2);
@@ -145,12 +144,13 @@ void calibragem2(){
 
 
 // the loop function runs over and over again forever
-int leitura[7] = {255, 0, 0, 120, 0, 0, 254} , motor_l, motor_r, angulo = 90;
+int leitura[6] = {255, 0, 0, 120, 0, 254} , motor_l, motor_r, angulo = 90;
 long last_millis = 0, current_millis, apitando = 0;
 void loop() {
     calibragem();
-    delay(5000);
+    delay(7000);
     calibragem2();
+    //THRESHOLD_L2 = THRESHOLD_L + 100;
 
     for (int k =0 ; k<3 ; k++){
         digitalWrite(BUZZER, HIGH);
@@ -160,99 +160,92 @@ void loop() {
         digitalWrite(LEDS, LOW);
         delay(100);
     }
-    int sair = 0;
-    while(sair == 0){
-        if (readBT_pack(leitura)){
-            if (leitura[4] == 1) {
-                azul = 1;
-                sair = 1;
-            } else if (leitura[5] == 1) {
-                rosa = 1;
-                sair = 1;
-            } 
-        }
-    }
 
-    unsigned long start_time = millis();
-    while (millis() - start_time < 60000){  /////////// Tempo
+    delay(15000);
+    setMotors(-50,-50);
+    delay(3500);
+
+    while (analogRead(IR_R) > THRESHOLD_R){
+        // sens_esq = analogRead(IR_L);
+        // if (sens_esq > THRESHOLD_L){
+        //     setMotors(-50,-30);
+        // }
+        // else
+        //     setMotors(-30,-50);
+
+        }
+    setMotors(90,-90);
+    delay(1800);
+
+
+
+
+
+    while(1){//rosa- teste 
         sens_esq = analogRead(IR_L);
         sens_dir = analogRead(IR_R);
-        if (rosa == 1){//rosa- teste 
-            setMotors(-50,-50);
-            delay(3500);
-            while (analogRead(IR_R) > THRESHOLD_R){}
-            setMotors(90,-90);
-            delay(1800);
+        Serial.print(sens_esq);
+        Serial.print("\t");
+        Serial.println(sens_dir);
+        while(sens_dir > THRESHOLD_R){ //// direita no branco
             sens_esq = analogRead(IR_L);
             sens_dir = analogRead(IR_R);
-            while(sens_dir > THRESHOLD_R){ //// direita no branco
-                sens_esq = analogRead(IR_L);
-                sens_dir = analogRead(IR_R);
-                if (sens_esq < THRESHOLD_L){ /// esq no preto
-                    setMotors(150,100);
-                } else {
-                    setMotors(100,150);
-                }
-            }setMotors(80,-60); // 80, -60 funcionava
-
-            delay(1900);
-                            
-            sens_esq = analogRead(IR_L);
-            sens_dir = analogRead(IR_R);
-            while(sens_esq > THRESHOLD_L2){/// esqurda nao chegou na linha
-                sens_esq = analogRead(IR_L);
-                sens_dir = analogRead(IR_R);
-                if (sens_dir < THRESHOLD_R2){
-                    setMotors(70,20);
-                }else{
-                    setMotors(20,70);
-                }
+            Serial.print(sens_esq);
+            Serial.print("\t");
+            Serial.println(sens_dir);
+            if (sens_esq < THRESHOLD_L){ /// esq no preto
+                setMotors(200,160);
+            } else {
+                setMotors(160,200);
             }
-            setMotors(0,0);
-        } else if (azul == 1){//rosa- teste
-            setMotors(-50,-54);
-            delay(3500);
-            while (analogRead(IR_L) > THRESHOLD_L){}
-            setMotors(-90,90);
-            delay(1800); 
-            sens_esq = analogRead(IR_L);
-            sens_dir = analogRead(IR_R);
-            while(sens_esq > THRESHOLD_L){ //// direita no branco
-                sens_esq = analogRead(IR_L);
-                sens_dir = analogRead(IR_R);
-                if (sens_dir < THRESHOLD_R){ /// esq no preto
-                    setMotors(100,150);
-                } else {
-                    setMotors(150,100);
-                }
-            }setMotors(-60,80); // 80, -60 funcionava
+        }setMotors(80,-60); // 80, -60 funcionava
 
-            delay(1900);
-                            
-            /// direita no preto
+        delay(1900);
+
+        sens_esq = analogRead(IR_L);
+        sens_dir = analogRead(IR_R);                
+        /// direita no preto
+        while(sens_esq > THRESHOLD_L2){/// esqurda nao chegou na linha
             sens_esq = analogRead(IR_L);
             sens_dir = analogRead(IR_R);
-            while(sens_dir > THRESHOLD_R2){/// esqurda nao chegou na linha
-                sens_esq = analogRead(IR_L);
-                sens_dir = analogRead(IR_R);
-                if (sens_esq < THRESHOLD_L2){
-                    setMotors(70,30);
-                }else{
-                    setMotors(30,70);
-                }
+            Serial.print(sens_esq);
+            Serial.print("\t");
+            Serial.println(sens_dir);
+            if (sens_dir < THRESHOLD_R2){
+                setMotors(70,20);
+            }else{
+                setMotors(20,70);
             }
-            setMotors(0,0);
         }
-        rosa = 0;
-        azul = 0;
-        setMotors(0,0);
-        
-    }
-    digitalWrite(BUZZER, HIGH);
-    delay(200);
-    digitalWrite(BUZZER, LOW);
-    delay(3000);
+            setMotors(0,0);
+            
+            digitalWrite(BUZZER, HIGH);
+            delay(200);
+            digitalWrite(BUZZER, LOW);
+            delay(3000);
+        }
+    
+    while (1){
 
+        sens_esq = analogRead(IR_L);
+        sens_dir = analogRead(IR_R);
+        //Serial.print(sens_esq);
+        //Serial.print("\t");
+        //Serial.println(sens_dir);
+        if ((sens_esq < THRESHOLD_L) && (sens_dir > THRESHOLD_R)){//Linha na esquerda
+            setMotors(STD_SPD - ACT, STD_SPD);
+        } else if ((sens_esq > THRESHOLD_L) && (sens_dir < THRESHOLD_R)){
+            setMotors(STD_SPD, STD_SPD - ACT);
+        } else {
+            setMotors(STD_SPD, STD_SPD);
+        }
+        if (readBT_pack(leitura)){
+            if (leitura[4] == 1) break;
+        } 
+    }
+
+    setMotors(0,0);
+    delay(1000);
     int last_z = 120;
     last_millis = millis();
     while (1){
@@ -261,24 +254,24 @@ void loop() {
             y = 2*(leitura[2]-127);
             z = leitura[3];
             setMotors(constrain(y+x, -255, 255), constrain(y-x, -255, 255));
-            // if (y < 0){
-            //     current_millis = millis();
-            //     if ((apitando == 0) && (current_millis - last_millis > 500)){
-            //         last_millis = millis();
-            //         apitando = 1;
-            //         digitalWrite(LEDS, HIGH);
-            //         digitalWrite(BUZZER, HIGH);
-            //     } else if ((apitando == 1) && (current_millis - last_millis > 500)) {
-            //         last_millis = millis();
-            //         apitando = 0;
-            //         digitalWrite(LEDS, LOW);
-            //         digitalWrite(BUZZER, LOW);
-            //     }
-            // } else {
-            //     apitando = 0;
-            //     digitalWrite(LEDS, LOW);
-            //     digitalWrite(BUZZER, LOW);
-            // }
+            if (y < 0){
+                current_millis = millis();
+                if ((apitando == 0) && (current_millis - last_millis > 500)){
+                    last_millis = millis();
+                    apitando = 1;
+                    digitalWrite(LEDS, HIGH);
+                    digitalWrite(BUZZER, HIGH);
+                } else if ((apitando == 1) && (current_millis - last_millis > 500)) {
+                    last_millis = millis();
+                    apitando = 0;
+                    digitalWrite(LEDS, LOW);
+                    digitalWrite(BUZZER, LOW);
+                }
+            } else {
+                apitando = 0;
+                digitalWrite(LEDS, LOW);
+                digitalWrite(BUZZER, LOW);
+            }
             if (z != last_z){
                 myservo.write(z);
                 last_z = z;

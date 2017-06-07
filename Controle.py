@@ -36,7 +36,7 @@ def joystick():
     ytrim = 0
     ztrim = 0
 
-    last_pack = [127, 127, 0, 0, 0]
+    last_pack = [255, 0, 0, 0, 0, 0, 254]
 
     while not done:
         while(device.in_waiting > 0):
@@ -45,12 +45,12 @@ def joystick():
             if event.type == pygame.QUIT: # If user clicked close
                 done = True # Flag that we are done so we exit this loop
 
-        luz = buzina = 0
+        azul = rosa = 0
 
         #for event in pygame.event.get(): # User did something
         x = int(127 + (127 * (joystick.get_axis(0) - ytrim)))
         y = int(127 + (127 * -(joystick.get_axis(1) - xtrim)))
-        z = int(127 + (127 * (joystick.get_axis(2) - ztrim)))
+        z = int(127 + (127 * (joystick.get_axis(2) )))
         if x > 253:
             x = 253
         if y > 253:
@@ -61,23 +61,22 @@ def joystick():
         if joystick.get_button(0):
             z = 0
         if joystick.get_button(2):
-            luz = 1
+            azul = 1
         if joystick.get_button(3):
-            buzina = 1
+            rosa = 1
 
         if joystick.get_button(11):
-            done = True
+            if joystick.get_button(6):
+                done = True
 
         if joystick.get_button(10):
             xtrim = joystick.get_axis(1)
             ytrim = joystick.get_axis(1)
-            ztrim = joystick.get_axis(2)
+            
 
-        chksum = (x + y + z + luz + buzina)%256
-
-        z = ((z*50)/255)+60
+        z = ((z*80)/255)+40
         z = int(z)
-        pack = [255, x, y, z, luz, 254]
+        pack = [255, x, y, z, azul, rosa, 254]
         if pack != last_pack:
             print(pack)
             send(pack)
