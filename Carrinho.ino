@@ -174,7 +174,7 @@ void loop() {
     }
 
     unsigned long start_time = millis();
-    while (millis() - start_time < 60000){  /////////// Tempo
+    while (millis() - start_time < 30000){  /////////// Tempo
         sens_esq = analogRead(IR_L);
         sens_dir = analogRead(IR_R);
         if (rosa == 1){//rosa- teste 
@@ -185,6 +185,7 @@ void loop() {
             delay(1800);
             sens_esq = analogRead(IR_L);
             sens_dir = analogRead(IR_R);
+            myservo.write(40);
             while(sens_dir > THRESHOLD_R){ //// direita no branco
                 sens_esq = analogRead(IR_L);
                 sens_dir = analogRead(IR_R);
@@ -193,23 +194,35 @@ void loop() {
                 } else {
                     setMotors(100,150);
                 }
-            }setMotors(80,-60); // 80, -60 funcionava
+            }setMotors(60,-70); // 80, -60 funcionava
+            myservo.write(120);
 
-            delay(1900);
+            delay(2500);
                             
             sens_esq = analogRead(IR_L);
             sens_dir = analogRead(IR_R);
-            while(sens_esq > THRESHOLD_L2){/// esqurda nao chegou na linha
+            unsigned long t2=millis();
+            while(millis() < t2 + 4000){
                 sens_esq = analogRead(IR_L);
                 sens_dir = analogRead(IR_R);
-                if (sens_dir < THRESHOLD_R2){
+                if (sens_dir < THRESHOLD_R){
+                    setMotors(70,20);
+                }else{
+                    setMotors(35,60);
+                }
+            }
+
+            while((sens_esq > THRESHOLD_L2)&& (millis() < start_time + 29000)){/// esqurda nao chegou na linha
+                sens_esq = analogRead(IR_L);
+                sens_dir = analogRead(IR_R);
+                if (sens_dir < THRESHOLD_R){
                     setMotors(70,20);
                 }else{
                     setMotors(20,70);
                 }
             }
             setMotors(0,0);
-        } else if (azul == 1){//rosa- teste
+        } else if (azul == 1){//Azul- teste
             setMotors(-50,-54);
             delay(3500);
             while (analogRead(IR_L) > THRESHOLD_L){}
@@ -217,6 +230,7 @@ void loop() {
             delay(1800); 
             sens_esq = analogRead(IR_L);
             sens_dir = analogRead(IR_R);
+            myservo.write(40);
             while(sens_esq > THRESHOLD_L){ //// direita no branco
                 sens_esq = analogRead(IR_L);
                 sens_dir = analogRead(IR_R);
@@ -225,14 +239,24 @@ void loop() {
                 } else {
                     setMotors(150,100);
                 }
-            }setMotors(-60,80); // 80, -60 funcionava
-
-            delay(1900);
+            }setMotors(-60,60); // 80, -60 funcionava
+            myservo.write(120);
+            delay(2300);
                             
             /// direita no preto
             sens_esq = analogRead(IR_L);
             sens_dir = analogRead(IR_R);
-            while(sens_dir > THRESHOLD_R2){/// esqurda nao chegou na linha
+            unsigned long t2=millis();
+            while(millis() < t2 + 4000){/// esqurda nao chegou na linha
+                sens_esq = analogRead(IR_L);
+                sens_dir = analogRead(IR_R);
+                if (sens_esq < THRESHOLD_L2){
+                    setMotors(70,30);
+                }else{
+                    setMotors(30,70);
+                }
+            }
+            while((sens_dir > THRESHOLD_R2) && (millis() < start_time + 29000)){/// esqurda nao chegou na linha
                 sens_esq = analogRead(IR_L);
                 sens_dir = analogRead(IR_R);
                 if (sens_esq < THRESHOLD_L2){
@@ -249,9 +273,11 @@ void loop() {
         
     }
     digitalWrite(BUZZER, HIGH);
-    delay(200);
+    digitalWrite(LEDS, HIGH);
+    delay(200);    
     digitalWrite(BUZZER, LOW);
     delay(3000);
+
 
     int last_z = 120;
     last_millis = millis();
