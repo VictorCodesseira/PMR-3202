@@ -18,9 +18,9 @@ int readBT_pack(int leitura[7]);
 #define LEDS 2
 #define STD_SPD 100
 #define ACT 100
-int THRESHOLD_L = 500; ////////////////////////////////////
+int THRESHOLD_L = 500;
 int THRESHOLD_R = 200;
-int THRESHOLD_L2 = 500; ////////////////////////////////////
+int THRESHOLD_L2 = 500;
 int THRESHOLD_R2 = 200;
 int rosa = 0, azul = 0;
 Servo myservo;
@@ -75,7 +75,6 @@ void setup() {
     myservo.attach(SERVO);
     bluetooth.begin(9600);
     Serial.begin(9600);
-    //myservo.write(30);
     delay(1000);
     myservo.write(120);
 }
@@ -174,7 +173,7 @@ void loop() {
     }
 
     unsigned long start_time = millis();
-    while (millis() - start_time < 30000){  /////////// Tempo
+    while (millis() - start_time < 30000){
         sens_esq = analogRead(IR_L);
         sens_dir = analogRead(IR_R);
         if (rosa == 1){//rosa- teste 
@@ -186,15 +185,15 @@ void loop() {
             sens_esq = analogRead(IR_L);
             sens_dir = analogRead(IR_R);
             myservo.write(40);
-            while(sens_dir > THRESHOLD_R){ //// direita no branco
+            while(sens_dir > THRESHOLD_R){
                 sens_esq = analogRead(IR_L);
                 sens_dir = analogRead(IR_R);
-                if (sens_esq < THRESHOLD_L){ /// esq no preto
+                if (sens_esq < THRESHOLD_L){
                     setMotors(150,100);
                 } else {
                     setMotors(100,150);
                 }
-            }setMotors(60,-70); // 80, -60 funcionava
+            }setMotors(60,-70);
             myservo.write(120);
 
             delay(2500);
@@ -212,7 +211,7 @@ void loop() {
                 }
             }
 
-            while((sens_esq > THRESHOLD_L2)&& (millis() < start_time + 29000)){/// esqurda nao chegou na linha
+            while((sens_esq > THRESHOLD_L2)&& (millis() < start_time + 29000)){
                 sens_esq = analogRead(IR_L);
                 sens_dir = analogRead(IR_R);
                 if (sens_dir < THRESHOLD_R){
@@ -222,7 +221,7 @@ void loop() {
                 }
             }
             setMotors(0,0);
-        } else if (azul == 1){//Azul- teste
+        } else if (azul == 1){
             setMotors(-50,-54);
             delay(3500);
             while (analogRead(IR_L) > THRESHOLD_L){}
@@ -231,15 +230,15 @@ void loop() {
             sens_esq = analogRead(IR_L);
             sens_dir = analogRead(IR_R);
             myservo.write(40);
-            while(sens_esq > THRESHOLD_L){ //// direita no branco
+            while(sens_esq > THRESHOLD_L){
                 sens_esq = analogRead(IR_L);
                 sens_dir = analogRead(IR_R);
-                if (sens_dir < THRESHOLD_R){ /// esq no preto
+                if (sens_dir < THRESHOLD_R){
                     setMotors(100,150);
                 } else {
                     setMotors(150,100);
                 }
-            }setMotors(-60,60); // 80, -60 funcionava
+            }setMotors(-60,60);
             myservo.write(120);
             delay(2300);
                             
@@ -247,7 +246,7 @@ void loop() {
             sens_esq = analogRead(IR_L);
             sens_dir = analogRead(IR_R);
             unsigned long t2=millis();
-            while(millis() < t2 + 4000){/// esqurda nao chegou na linha
+            while(millis() < t2 + 4000){
                 sens_esq = analogRead(IR_L);
                 sens_dir = analogRead(IR_R);
                 if (sens_esq < THRESHOLD_L2){
@@ -256,7 +255,7 @@ void loop() {
                     setMotors(30,70);
                 }
             }
-            while((sens_dir > THRESHOLD_R2) && (millis() < start_time + 29000)){/// esqurda nao chegou na linha
+            while((sens_dir > THRESHOLD_R2) && (millis() < start_time + 29000)){
                 sens_esq = analogRead(IR_L);
                 sens_dir = analogRead(IR_R);
                 if (sens_esq < THRESHOLD_L2){
@@ -287,24 +286,6 @@ void loop() {
             y = 2*(leitura[2]-127);
             z = leitura[3];
             setMotors(constrain(y+x, -255, 255), constrain(y-x, -255, 255));
-            // if (y < 0){
-            //     current_millis = millis();
-            //     if ((apitando == 0) && (current_millis - last_millis > 500)){
-            //         last_millis = millis();
-            //         apitando = 1;
-            //         digitalWrite(LEDS, HIGH);
-            //         digitalWrite(BUZZER, HIGH);
-            //     } else if ((apitando == 1) && (current_millis - last_millis > 500)) {
-            //         last_millis = millis();
-            //         apitando = 0;
-            //         digitalWrite(LEDS, LOW);
-            //         digitalWrite(BUZZER, LOW);
-            //     }
-            // } else {
-            //     apitando = 0;
-            //     digitalWrite(LEDS, LOW);
-            //     digitalWrite(BUZZER, LOW);
-            // }
             if (z != last_z){
                 myservo.write(z);
                 last_z = z;
